@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
 
     'chat',
+    'rest_framework',
+    'channels',
 ]
 
 MIDDLEWARE = [
