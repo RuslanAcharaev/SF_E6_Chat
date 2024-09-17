@@ -6,50 +6,127 @@
 
 {% if request.user.is_authenticated %}
 
-    <div id="room-name-div" style="text-align: center;">Добро пожаловать в {{ room_name }}</div>
-    <textarea id="chat-log" cols="100" rows="20"></textarea><br>
-    <input id="chat-message-input" type="text" size="100"><br>
-    <input id="chat-message-submit" type="button" value="Send">
-    {{ room_name|json_script:"room-name" }}
+    <div id="room-name-div" class="text-lg text-center font-bold">
+        {% if room.is_private == True %}
+        Чат с {{ other_user }}
+        {% else %}
+        Добро пожаловать в {{ room.name }}
+        {% endif %}
+    </div>
+
+    <div id="chat_container" class="overflow-y-auto h-[62vh]">
+        <ul id="chat_messages" class="flex flex-col justify-end gap-2 p-4">
+            {% for message in messages %}
+                {% if message.author.user == request.user %}
+                <li class="flex justify-end mb-4">
+                    <div class="bg-blue-300 rounded-l-lg rounded-tr-lg p-4 max-w-[75%]">
+                        <span>{{ message.text }}</span>
+                    </div>
+                </li>
+                {% else %}
+                <li>
+                    <div class="flex justify-start">
+                        <img class="w-8 h-8 rounded-full object-cover" src="{{ message.author.avatar }}" alt="">
+                        <div class="bg-blue-100 rounded-bl-lg rounded-r-lg p-4 max-w-[75%]">
+                            <span>{{ message.text }}</span>
+                        </div>
+                    </div>
+                    <div class="text-sm font-light py-1 ml-10">
+                        <span class="text-gray-400">@{{ message.author.user.username }}</span>
+                    </div>
+                </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+    <br>
+
+    <form action="" id="msg-form" method="POST" class="flex">
+        {% csrf_token %}
+        <input id="chat-message-input" name="message" type="text" size="100" placeholder="Введите Ваше сообщение">
+        <button id="chat-message-submit" type="submit">&#10003;</button>
+    </form>
+
     {{ request.user.username|json_script:"username" }}
 
     <script>
-        const roomName = JSON.parse(document.getElementById('room-name').textContent);
         const username = JSON.parse(document.getElementById('username').textContent);
+        const ws_url = new URL('', location.href);
+        ws_url.href = ws_url.href.replace('http://127.0.0.1:8000', 'ws://127.0.0.1:8000/ws');
 
-        const chatSocket = new WebSocket(
-            'ws://'
-            + window.location.host
-            + '/ws/chat/'
-            + roomName
-            + '/'
-        );
 
-        chatSocket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').value += (data.message + '\n');
-        };
+        const chatSocket = new WebSocket(ws_url);
+
+        // Оправка сообщения на сервер
+        const message_form = document.getElementById("msg-form");
+        message_form.addEventListener("submit", function (event) {
+          event.preventDefault();
+          // console.log("Отправляется сообщение")
+          let message_sent = document.getElementById("chat-message-input").value;
+          // console.log("Отправка... ", message_sent);
+          chatSocket.send(
+            JSON.stringify({
+              message: message_sent,
+              room: "{{room}}",
+              author: "{{request.user}}",
+              avatar: "{{ user.profile.avatar }}"
+            })
+          );
+        });
+
+        const chat_ul = document.getElementById('chat_messages');
+        const chat_div = document.getElementById('chat_container');
+        const page_scroll = (document.scrollingElement || document.body);
+        page_scroll.scrollTop = page_scroll.scrollHeight;
+        chat_div.scrollTop = chat_div.scrollHeight;
+
+        // Скролл содержимого контейнера
+        const scrollToBottom = () => {
+          chat_div.scrollTop = chat_div.scrollHeight;
+        }
+
+
+        // Получения сообщения от сервера
+        chatSocket.addEventListener('message', (e) => {
+            const data = JSON.parse(e.data)['message']
+
+            let author = data['author']
+            let content = data['message']
+            let avatar = data['avatar']
+
+            if (author == '{{request.user}}'){
+                document.getElementById("chat-message-input").value = ''
+            }
+
+            if (author == '{{request.user}}'){
+                chat_ul.innerHTML += `
+                <li class="flex justify-end mb-4">
+                    <div class="bg-blue-300 rounded-l-lg rounded-tr-lg p-4 max-w-[75%]">
+                        <span>${ content }</span>
+                    </div>
+                </li>`;
+            } else {
+                chat_ul.innerHTML += `
+                <li>
+                    <div class="flex justify-start">
+                        <img class="w-8 h-8 rounded-full object-cover" src="${ avatar }" alt="">
+                        <div class="bg-blue-100 rounded-bl-lg rounded-r-lg p-4 max-w-[75%]">
+                            <span>${ content }</span>
+                        </div>
+                    </div>
+                    <div class="text-sm font-light py-1 ml-10">
+                        <span class="text-gray-400">@${ author }</span>
+                    </div>
+                </li>`;
+            }
+
+            scrollToBottom();
+        });
+
 
         chatSocket.onclose = function(e) {
             console.error('Chat socket closed unexpectedly');
         };
-
-        document.querySelector('#chat-message-input').focus();
-        document.querySelector('#chat-message-input').onkeyup = function(e) {
-            if (e.keyCode === 13) {  // enter, return
-                document.querySelector('#chat-message-submit').click();
-            }
-        };
-
-        document.querySelector('#chat-message-submit').onclick = function(e) {
-            const messageInputDom = document.querySelector('#chat-message-input');
-            const message = username + ': ' + messageInputDom.value;
-            chatSocket.send(JSON.stringify({
-                'message': message
-            }));
-            messageInputDom.value = '';
-        };
-
     </script>
 
 {% else %}

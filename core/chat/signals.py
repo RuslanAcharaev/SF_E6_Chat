@@ -11,5 +11,5 @@ def user_postsave(sender, instance, created, **kwargs):
     # Если пользователь создан - создать объект профиля
     if created:
         Profile.objects.create(
-            user = user,
+            user=user,
         )

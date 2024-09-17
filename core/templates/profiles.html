@@ -1,0 +1,33 @@
+{% extends 'layouts/box.html' %}
+
+{% load static %}
+
+{% block content %}
+
+{% if request.user.is_authenticated %}
+
+    <h2 class="text-center">Список зарегистрированных пользователей</h2><br>
+
+    <br>
+
+    {% if profiles %}
+        <ul class="list-group list-group-flush bg-transparent">
+            {% for profile in profiles %}
+                <li class="list-group-item bg-transparent">
+                    <div class="flex justify-center items-center space-x-4">
+                        <img class="w-10 h-10 rounded-full object-cover" src="{{ profile.avatar }}" alt="">
+                        <h2 class="text-black">{{ profile.user.username }}</h2>
+                        {% if request.user != profile.user %}
+                        <a class="button text-sm border hover:bg-indigo-700" href="{% url 'start-chat' profile.user.username %}">Начать переписку</a>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+{% else %}
+    <meta http-equiv="REFRESH" content="0;url=http://127.0.0.1:8000/accounts/login/">
+{% endif %}
+
+{% endblock %}

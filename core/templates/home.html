@@ -6,23 +6,30 @@
 
 {% if request.user.is_authenticated %}
 
-    В какой комнате начать общение?<br>
-    <input id="room-name-input" type="text" size="100"><br>
-    <input id="room-name-submit" type="button" value="Enter">
+    <h2 class="text-center">Введите название комнаты или выберите из списка уже существующих</h2><br>
 
-    <script>
-        document.querySelector('#room-name-input').focus();
-        document.querySelector('#room-name-input').onkeyup = function(e) {
-            if (e.keyCode === 13) {  // enter, return
-                document.querySelector('#room-name-submit').click();
-            }
-        };
+    <form method="POST" class="flex">
+        {% csrf_token %}
+        <input id="room-name-input" name="room_name" type="text" size="100" placeholder="Введите название новой комнаты">
+        <button id="room-name-submit" type="submit">Создать</button>
+    </form>
 
-        document.querySelector('#room-name-submit').onclick = function(e) {
-            var roomName = document.querySelector('#room-name-input').value;
-            window.location.pathname = '/chat/' + roomName + '/';
-        };
-    </script>
+    <br>
+
+    {% if rooms %}
+        <h2 class="text-center">Список комнат:</h2><br>
+        <ul class="list-group list-group-flush bg-transparent">
+            {% for room in rooms %}
+                {% if room.is_private == False%}
+                    <li class="list-group-item bg-transparent">
+                        <h2><a class="bg-slate-900 hover:bg-slate-700 text-white
+                         font-semibold h-12 px-6 rounded-lg w-full flex items-center
+                          justify-center sm:w-auto" href="{% url 'room' room.id %}">{{ room.name }}</a></h2>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endif %}
 
 {% else %}
     <meta http-equiv="REFRESH" content="0;url=http://127.0.0.1:8000/accounts/login/">

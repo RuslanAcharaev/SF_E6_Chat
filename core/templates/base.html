@@ -94,11 +94,23 @@
         .alert-success { @apply bg-green-400 }
         .alert-warning { @apply bg-amber-400 }
         .alert-danger { @apply bg-amber-500 }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
     </style>
 </head>
 <body class="{% block class %}{% endblock %}">
-	
-    {% include 'includes/messages.html' %}
 
     {% include 'includes/header.html' %}
 

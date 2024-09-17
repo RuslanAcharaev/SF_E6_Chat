@@ -13,7 +13,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
-        fields = ['name', 'created_at']
+        fields = ['name', 'created_at', 'is_private', 'members']
 
 
 class MessageSerializer(serializers.ModelSerializer):

@@ -1,0 +1,13 @@
+{% extends 'layouts/box.html' %}
+
+{% load static %}
+
+{% block content %}
+<h2 align="center">Пожалуйста, войдите в свой аккаунт или зарегистрируйтесь.</h2>
+
+<br>
+<div class="flex justify-center items-center space-x-1">
+    <a class="button text-sm border hover:bg-indigo-700" href="{% url 'account_login' %}">Войти</a>
+    <a class="button text-sm border hover:bg-indigo-700" href="{% url 'account_signup' %}">Зарегистрироваться</a>
+</div>
+{% endblock content %}

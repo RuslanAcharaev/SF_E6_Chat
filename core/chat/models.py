@@ -1,3 +1,4 @@
+import shortuuid
 from django.db import models
 from django.contrib.auth.models import User
 from django.templatetags.static import static
@@ -24,12 +25,14 @@ class Profile(models.Model):
     def avatar(self):
         if self.image:
             return self.image.url
-        return static("images/avatar.svg")
+        return static('images/avatar.svg')
 
 
 class Room(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, unique=True, default=shortuuid.uuid)
     created_at = models.DateField(auto_now_add=True)
+    members = models.ManyToManyField(User, related_name='chat_groups', blank=True)
+    is_private = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.name}'
