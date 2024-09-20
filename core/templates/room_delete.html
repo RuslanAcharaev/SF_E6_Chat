@@ -1,0 +1,21 @@
+{% extends 'layouts/box.html' %}
+
+{% load static %}
+
+{% block content %}
+
+{% if request.user.is_authenticated %}
+
+    <h2 class="text-center">Удаление чат-комнаты</h2><br>
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <p>Вы уверены, что хотите удалить "{{ room.name }}"?</p>
+        <input type="submit" value="Delete" />
+    </form>
+
+{% else %}
+    <meta http-equiv="REFRESH" content="0;url=http://127.0.0.1:8000/accounts/login/">
+{% endif %}
+
+{% endblock %}

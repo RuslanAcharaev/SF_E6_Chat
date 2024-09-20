@@ -106,3 +106,38 @@ def get_or_create_chatroom(request, username):
 
 def forbidden(request):
     return render(request, 'forbidden.html')
+
+
+@login_required()
+def room_edit(request, pk):
+    room: Room = get_object_or_404(Room, pk=pk)
+    if room.is_private:
+        raise Http404()
+    if request.method == 'POST':
+        room_name = request.POST.get('room_name', None)
+        if room_name:
+            room.name = room_name
+            room.save()
+            return HttpResponseRedirect(reverse('room', args=[room.pk]))
+
+    context = {
+        'room': room,
+    }
+
+    return render(request, 'room_edit.html', context)
+
+
+@login_required()
+def room_delete(request, pk):
+    room: Room = get_object_or_404(Room, pk=pk)
+    if room.is_private:
+        raise Http404()
+    if request.method == 'POST':
+        room.delete()
+        return redirect('home')
+
+    context = {
+        'room': room,
+    }
+
+    return render(request, 'room_delete.html', context)

@@ -8,7 +8,7 @@
 
     <h2 class="text-center">Введите название комнаты или выберите из списка уже существующих</h2><br>
 
-    <form method="POST" class="flex">
+    <form method="POST" class="flex gap-1">
         {% csrf_token %}
         <input id="room-name-input" name="room_name" type="text" size="100" placeholder="Введите название новой комнаты">
         <button id="room-name-submit" type="submit">Создать</button>
@@ -21,10 +21,16 @@
         <ul class="list-group list-group-flush bg-transparent">
             {% for room in rooms %}
                 {% if room.is_private == False%}
-                    <li class="list-group-item bg-transparent">
+                    <li class="w-full flex flex-row justify-center gap-1">
                         <h2><a class="bg-slate-900 hover:bg-slate-700 text-white
-                         font-semibold h-12 px-6 rounded-lg w-full flex items-center
-                          justify-center sm:w-auto" href="{% url 'room' room.id %}">{{ room.name }}</a></h2>
+                         font-semibold h-12 px-6 rounded-lg flex items-center
+                          justify-center w-80" href="{% url 'room' room.id %}">{{ room.name }}</a></h2>
+                        <h2><a class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium
+                        h-12 px-3 rounded-lg flex-initial shadow-lg flex items-center
+                        justify-center sm:w-auto" href="{% url 'room-edit' room.id %}">Изменить</a></h2>
+                        <h2><a class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium
+                        h-12 px-3 rounded-lg flex-initial shadow-lg flex items-center
+                        justify-center sm:w-auto" href="{% url 'room-delete' room.id %}">Удалить</a></h2>
                     </li>
                 {% endif %}
             {% endfor %}
